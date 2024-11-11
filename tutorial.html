@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guia de Uso da API do Notion</title>
+</head>
+<body>
+    <h1>Guia de Uso da API para Manipulação de Páginas no Banco de Dados do Notion</h1>
+
+    <p>Este guia explicará como utilizar a API construída para manipulação de páginas em um banco de dados do Notion. 
+    O projeto utiliza <strong>Node.js</strong> com <strong>express</strong> e a biblioteca <strong>@notionhq/client</strong>. 
+    A seguir, você aprenderá como configurar, usar a API e fazer requisições no <strong>Postman</strong>.</p>
+
+    <hr>
+
+    <h2>Configuração Inicial</h2>
+
+    <h3>1. Instalar as dependências</h3>
+    <p>Execute o comando abaixo para instalar as dependências necessárias manualmente:</p>
+    <pre><code>npm install express dotenv @notionhq/client</code></pre>
+    <p>Este comando instala as bibliotecas essenciais para o projeto, como express (para o servidor web), dotenv (para variáveis de ambiente) e @notionhq/client (para interação com a API do Notion).</p>
+    <p>Ou execute esse comando para instalar as dependencias do package.json:</p>
+    <pre><code>npm install</code></pre>
+
+    <h3>2. Configuração do Ambiente</h3>
+    <p>Crie um arquivo <code>.env</code> na raiz do projeto com as seguintes variáveis de ambiente:</p>
+    <pre><code>NOTION_API_KEY=sua_chave_de_api   -- A chave de API para acessar a API do Notion
+DATABASE_ID=id_do_seu_banco_de_dados  -- O ID do banco de dados do Notion
+PORT=3000  -- Opcional, caso queira definir a porta manualmente para o servidor</code></pre>
+    
+    <h3>3. Executar o Servidor</h3>
+    <p>Após configurar as dependências e as variáveis de ambiente, execute o servidor com o Node.js:</p>
+    <pre><code>node app.js   -- Comando para rodar o servidor com Node.js</code></pre>
+    <p>Caso tenha o <strong>nodemon</strong> instalado, use o comando abaixo para rodar o servidor com reinício automático:</p>
+    <pre><code>nodemon app.js  -- Comando para rodar o servidor com nodemon</code></pre>
+
+    <hr>
+
+    <h2>Rotas da API</h2>
+
+    <h3>1. Criar uma Página (POST /api/addPage)</h3>
+    <p>Essa rota permite criar uma nova página no banco de dados do Notion com os dados fornecidos no corpo da requisição (request body). Ao utilizar o método POST, você envia as informações necessárias para a criação da página no Notion.</p>
+    
+    <h4>Exemplo de envio (body):</h4>
+    <pre><code>{
+  "titulo": "Campanha de Natal",  -- Título da página que será criada no Notion.
+  "descricao": "Descrição da campanha de Natal",  -- Descrição detalhada da campanha.
+  "linkImagem": "https://exemplo.com/imagem.jpg",  -- URL da imagem associada à campanha.
+  "campanha": "Promoção de fim de ano",  -- Nome da campanha.
+  "data": "2024-12-25",  -- Data prevista para o evento ou campanha.
+  "empresa": "Loja XYZ"  -- Nome da empresa responsável pela campanha.
+}</code></pre>
+    
+    <h4>Resposta de sucesso (200 OK):</h4>
+    <pre><code>{
+  "success": true,   -- Indica que a operação foi bem-sucedida.
+  "data": { /* Dados da página criada */ }  -- Dados retornados da página criada no banco de dados.
+}</code></pre>
+
+    <h3>2. Consultar Páginas com Filtros (GET /api/)</h3>
+    <p>Esta rota permite consultar páginas no banco de dados com base em filtros passados como parâmetros de query na URL. O método GET é utilizado para fazer requisições de leitura, sem alterações no banco de dados.</p>
+    
+    <h4>Parâmetros de Query:</h4>
+    <ul>
+        <li><strong>companyName</strong>: Nome da empresa para filtrar páginas relacionadas a uma empresa específica.</li>
+        <li><strong>campaign</strong>: Nome da campanha para filtrar páginas de uma campanha específica.</li>
+        <li><strong>language</strong>: Idioma para filtrar páginas em um idioma específico.</li>
+        <li><strong>where</strong>: URL ou local relacionado à campanha.</li>
+        <li><strong>idRow</strong>: Filtra por um ID específico de página.</li>
+    </ul>
+
+    <h4>Exemplo de requisição:</h4>
+    <pre><code>GET /api/1290d303-ccf9-808d-8697-f7a3dc42ef3f?companyName=Loja%20XYZ&language=Português</code></pre>
+
+    <h4>Resposta de sucesso (200 OK):</h4>
+    <pre><code>[
+  {    
+    "id": "pagina_id",    -- ID único da página retornada.
+    "companyName": "Loja XYZ",    -- Nome da empresa associada à página.
+    "campaign": "Promoção de fim de ano",    -- Nome da campanha associada à página.
+    "description": "Descrição da campanha de Natal",    -- Descrição da campanha.
+    "plannedDate": "2024-12-25",    -- Data planejada para a campanha ou evento.
+    "where": "https://exemplo.com/imagem.jpg",    -- URL da imagem associada à campanha.
+    "language": "Português",    -- Idioma da página.
+    "content": "Campanha de Natal",    -- Conteúdo principal ou título da página.
+    "imageUrl": "https://exemplo.com/imagem.jpg",    -- URL da imagem associada à campanha.
+    "imageText": "Imagem de exemplo"    -- Texto alternativo ou descrição da imagem.
+  }
+]</code></pre>
+
+    <h3>3. Atualizar uma Página (PUT /api/)</h3>
+    <p>Esta rota permite atualizar uma página existente no banco de dados do Notion. O método PUT é utilizado para enviar dados de atualização para uma página já existente.</p>
+
+    <h4>Exemplo de envio (body):</h4>
+    <pre><code>{
+  "companyName": "Loja ABC",  -- Nome da empresa para atualizar.
+  "campanha": "Desconto de Verão",  -- Nome da nova campanha.
+  "descricao": "Nova descrição da campanha de verão",  -- Descrição atualizada da campanha.
+  "plannedDate": "2025-01-15",  -- Nova data planejada.
+  "where": "https://exemplo.com/nova-imagem.jpg",  -- Novo link para a imagem da campanha.
+  "language": "Inglês",  -- Idioma da página.
+  "content": "Desconto de Verão",  -- Conteúdo principal atualizado.
+  "imageUrl": "https://exemplo.com/nova-imagem.jpg",  -- Novo link para a imagem.
+  "imageText": "Nova imagem de exemplo"  -- Novo texto alternativo para a imagem.
+}</code></pre>
+
+    <h4>Resposta de sucesso (200 OK):</h4>
+    <pre><code>{ /* Dados da página atualizada */ }</code></pre>
+
+    <h3>4. Arquivar uma Página (DELETE /api/)</h3>
+    <p>Esta rota permite arquivar uma página, ou seja, marcar uma página como arquivada sem deletá-la permanentemente. O método DELETE é utilizado para realizar a exclusão ou arquivamento.</p>
+
+    <h4>Exemplo de requisição:</h4>
+    <pre><code>DELETE /api/1234567890abcdef  -- ID da página que você deseja arquivar.</code></pre>
+    
+    <h4>Resposta de sucesso (204 No Content):</h4>
+    <p>Não há conteúdo retornado na resposta, o que indica que a operação foi bem-sucedida, mas sem dados adicionais a serem retornados.</p>
+
+    <hr>
+
+    <h2>Como Utilizar no Postman</h2>
+
+    <h3>1. Criar uma Nova Requisição</h3>
+    <p>No Postman, crie uma nova requisição selecionando o método desejado (POST, GET, PUT, DELETE). Em seguida, insira a URL do servidor local, que normalmente será <code>http://localhost:3000/api/addPage</code> (ou o endpoint correspondente).</p>
+
+    <h3>2. Definir o Corpo da Requisição (Para POST e PUT)</h3>
+    <p>Vá até a aba <strong>"Body"</strong> no Postman e selecione a opção <strong>"raw"</strong>. Defina o tipo como <strong>JSON</strong> e insira o corpo da requisição conforme mostrado nos exemplos anteriores.</p>
+
+    <h3>3. Enviar a Requisição e Verificar a Resposta</h3>
+    <p>Após configurar a requisição no Postman, clique em <strong>Send</strong> para enviar a requisição ao servidor. Verifique a resposta retornada pelo servidor na área de respostas do Postman. Caso a operação seja bem-sucedida, você verá o status <code>200 OK</code> ou <code>204 No Content</code> dependendo do tipo de requisição.</p>
+</body>
+</html>
